@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongt.shiroDemo.dao.UserDao">
+    <resultMap id="UserResult" type="User">
+        <id property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="salt" column="salt"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <collection property="roleSet" ofType="Role">
+            <id property="roleId" column="role_id"/>
+            <result property="roleName" column="role_name"/>
+        </collection>
+    </resultMap>
+
+    <select id="findByUsername" parameterType="String" resultMap="UserResult">
+        SELECT U.user_id,U.user_name,U.password,U.salt,U.create_time,U.update_time,R.role_id,R.role_name FROM shiro_user U , shiro_role R , shiro_user_role UR
+        WHERE U.user_id = UR.user_id AND R.role_id = UR.role_id AND U.user_name = #{username}
+    </select>
+
+    <select id="findRoles" parameterType="String" resultType="String">
+        select role_name from shiro_user u, shiro_role r, shiro_user_role ur
+        where u.user_name=#{username} and u.user_id = ur.user_id and r.role_id = ur.role_id
+    </select>
+
+    <select id="findPermissions" parameterType="String" resultType="String">
+        select permission_string from shiro_user u, shiro_role r, shiro_permission p, shiro_user_role ur, shiro_role_permission rp
+        where u.user_name=#{username} and u.user_id=ur.user_id and r.role_id=ur.role_id and r.role_id=rp.role_id and p.permission_id=rp.permission_id
+    </select>
+</mapper>
